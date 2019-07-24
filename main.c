@@ -193,7 +193,7 @@ unsigned long displaytimer=0x00;
 unsigned long displaytimertransition=0x00;
 unsigned char displaytimeronoff=0x00;
 unsigned char displaytimerscore=0x00;
-
+unsigned char variable=0x00;
 enum States{init, one, two, three}state;
 enum stateCounter {initCounter, UpLeftCounter, DownLeftCounter, DownRightCounter, UpRightCounter} stateCounter;
 enum stateClockwise {initClockwise, UpLeftClockwise, DownLeftClockwise, DownRightClockwise, UpRightClockwise } stateClockwise;
@@ -286,7 +286,7 @@ void Padle(){
 
 void ballCounter(){
 if(mode==1){
-if(cnt==100){
+if(cnt==50){
 ballcnt=ballcnt+1;
 if(ballcnt==balltime){
 		switch(stateCounter){
@@ -345,6 +345,19 @@ if(ballcnt==balltime){
 			stateClockwise=DownRightCounter;
 			mode=0;
 			}
+			variable=(LeftPad&ballrow);
+			if(variable==0){
+			if(ballrow>=LeftPad){
+			variable=ballrow;
+			variable=variable>>1;
+			if(ballcolumn==0x40){
+			if(((variable)<=LeftPad)){
+			stateClockwise=DownLeftClockwise;
+			mode=0;
+			}
+			}
+			}
+			}
 			break;
 				
 			case DownLeftCounter:
@@ -353,6 +366,19 @@ if(ballcnt==balltime){
 			if(ballrow==0x80){
 			stateClockwise=UpLeftClockwise;
 			mode=0;
+			}
+			variable=(RightPad&ballrow);
+			if(variable==0){
+			if(ballrow<=RightPad){
+				variable=RightPad;
+				variable=variable>>4;
+				if(ballcolumn==0x02){
+				if(ballrow>=variable){
+				stateClockwise=UpRightCounter;
+				mode=0;
+				}
+				}
+			}
 			}
 			break;
 				
@@ -375,7 +401,7 @@ ballcnt=0;
 
 void ballClockwise(){
 if(mode==0){
-if(cnt==100){
+if(cnt==50){
 ballcnt=ballcnt+1;
 if(ballcnt==balltime){
 	switch(stateClockwise){
@@ -422,6 +448,19 @@ switch(stateClockwise){
 		stateCounter=DownLeftCounter;
 		mode=1;
 		}
+		variable=(RightPad&ballrow);
+		if(variable==0){
+		if(ballrow>=RightPad){
+		variable=ballrow;
+		variable=variable>>1;
+		if(ballcolumn==0x02){
+		if(((variable)<=RightPad)){
+		stateCounter=DownRightCounter;
+		mode=1;
+		}
+		}
+		}
+		}
 		break;
 		
 		case UpRightClockwise:
@@ -452,6 +491,19 @@ switch(stateClockwise){
 		if(ballrow==0x80){
 		stateCounter=UpRightCounter;
 		mode=1;
+		}
+		variable=(LeftPad&ballrow);
+		if(variable==0){
+		if(ballrow<=LeftPad){
+		variable=LeftPad;
+		variable=variable>>4;
+		if(ballcolumn==0x40){
+		if(ballrow>=variable){
+			stateCounter=UpLeftCounter;
+			mode=1;
+			}
+			}
+		}
 		}
 		break;
 	
@@ -519,7 +571,7 @@ while(buttonReset){
 
 void score(){
 	
-	if(cnt==100){
+	if(cnt==50){
 	ballcnt2=ballcnt2+1;
 	if(ballcnt2==1){
 	if(ballcolumn==0x01){
@@ -562,7 +614,7 @@ void ballreset(){
 
 void Ai(){
 if(AiSwitch){
-if(cnt==99){
+if(cnt==50){
 if(RightGate==0){
 if(LeftPad>ballrow){
 	LeftPad=LeftPad>>1;
@@ -655,10 +707,11 @@ void WinnerLoserFlash(){
 			}
 			flashing=flashing+1;
 			flashingoff=flashingoff+1;
-			ballcolumn=0x00;
-			ballrow=0x00;
+			mode=3;
 			if(flashingoff==5000){
 				winner=1;
+				mode=1;
+				state=init;
 				ballcolumn=0x10;
 				ballrow=0x10;
 				displaytimeronoff=0;
@@ -681,10 +734,11 @@ void WinnerLoserFlash(){
 		}
 		flashing=flashing+1;
 		flashingoff=flashingoff+1;
-		ballcolumn=0x04;
-		ballrow=0x04;
+		mode=3;
 		if(flashingoff==5000){
 			winner=1;
+			mode=1;
+			state=init;
 			ballcolumn=0x10;
 			ballrow=0x10;
 			displaytimeronoff=0;
@@ -697,12 +751,11 @@ void WinnerLoserFlash(){
 void Time(){
 	while(!TimerFlag);
 	TimerFlag=0;
-	if(cnt==100){
+	if(cnt==50){
 		cnt=0;
 	}
 	cnt=(cnt+1);
 }
-
 
 int main(void)
 {
@@ -714,17 +767,18 @@ int main(void)
 	TimerOn();
 	LeftPad=0x38;
 	RightPad=0x38;
-	stateCounter=UpLeftCounter;
+	stateCounter=DownLeftCounter;
 	stateClockwise=DownRightClockwise;
-	ballcolumn=0x40;
-	ballrow=0x40;
+	ballcolumn=0x01;
+	ballrow=0x01;
 	mode=1;
-	balltime=1;
+	balltime=10;
 	HC595Init();
 	HC595Write(0x00);
 	HC595Write1(0x00);
 	
     while (1) {
+
 	Transitions();
 	LeftScroll();
 	RightScroll();
@@ -736,8 +790,10 @@ int main(void)
 	score();
 	ballreset();
 	Ai();
+		//	attempt();
 	Adder();
 	resetgame();
+
 	Time();
 	
     }
