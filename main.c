@@ -354,6 +354,10 @@ if(ballcnt==balltime){
 			if(((variable)<=LeftPad)){
 			stateClockwise=DownLeftClockwise;
 			mode=0;
+			  if(balltime>=2){
+				balltime=balltime-1;
+			 }
+			  			
 			}
 			}
 			}
@@ -377,6 +381,9 @@ if(ballcnt==balltime){
 				stateClockwise=UpRightCounter;
 				mode=0;
 				}
+	  			if(balltime>=2){
+	  			balltime=balltime-1;
+				 }
 				}
 			}
 			}
@@ -401,7 +408,7 @@ ballcnt=0;
 
 void ballClockwise(){
 if(mode==0){
-if(cnt==50){
+if(cnt==25){
 ballcnt=ballcnt+1;
 if(ballcnt==balltime){
 	switch(stateClockwise){
@@ -457,6 +464,10 @@ switch(stateClockwise){
 		if(((variable)<=RightPad)){
 		stateCounter=DownRightCounter;
 		mode=1;
+  			if(balltime>=2){
+	  			balltime=balltime-1;
+  			}
+  					
 		}
 		}
 		}
@@ -501,6 +512,10 @@ switch(stateClockwise){
 		if(ballrow>=variable){
 			stateCounter=UpLeftCounter;
 			mode=1;
+			  			if(balltime>=2){
+				  			balltime=balltime-1;
+			  			}
+			  			
 			}
 			}
 		}
@@ -542,8 +557,8 @@ while(buttonReset){
 
 	LeftPad=0x00;
 	RightPad=0x00;
-	ballcolumn=0x00;
-	ballrow=0x00;
+	ballcolumn=0x08;
+	ballrow=0x08;
 	column=0x00;
 	row=0x00;
 	cnt=0x00;
@@ -552,8 +567,8 @@ while(buttonReset){
 
 	LeftPad=0x38;
 	RightPad=0x38;
-	ballcolumn=0x01;
-	ballrow=0x01;
+	//ballcolumn=0x01;
+	//ballrow=0x01;
 	HC595Write(0x00);
 	HC595Write1(0x00);
 	PlayerTwoScore=0;
@@ -571,24 +586,26 @@ while(buttonReset){
 
 void score(){
 	
-	if(cnt==50){
-	ballcnt2=ballcnt2+1;
-	if(ballcnt2==1){
+	//if(cnt==25){
+	//ballcnt2=ballcnt2+1;
+	//if(ballcnt2==1){
 	if(ballcolumn==0x01){
 		PlayerTwoScore=(PlayerTwoScore+1);
 		HC595Write(PlayerTwoScore);
 		displaytimeronoff=0;
+		balltime=10;
 	}
 
 	if(ballcolumn==0x80){
 		PlayerOneScore=(PlayerOneScore+1);
 		HC595Write1(PlayerOneScore);
 		displaytimeronoff=0;
+		balltime=10;
 	}
-	ballcnt2=0;
+	//ballcnt2=0;
 	}
-}
-}
+//}
+//}
 
 
 
@@ -692,7 +709,7 @@ void timescreen(){
 
 void WinnerLoserFlash(){
 	if(winner==0){
-		if(PlayerOneScore>=0x0A){
+		if(PlayerTwoScore>=0x0A){
 			displaytimeronoff=1;
 			if(flashing<=100){
 				PIND=0x50;
@@ -717,7 +734,7 @@ void WinnerLoserFlash(){
 				displaytimeronoff=0;
 				}
 		}
-		if(PlayerTwoScore>=0x0A){
+		if(PlayerOneScore>=0x0A){
 			displaytimeronoff=1;
 			if(flashing<=100){
 				PIND= 0x05;
@@ -769,8 +786,8 @@ int main(void)
 	RightPad=0x38;
 	stateCounter=DownLeftCounter;
 	stateClockwise=DownRightClockwise;
-	ballcolumn=0x01;
-	ballrow=0x01;
+	ballcolumn=0x08;
+	ballrow=0x08;
 	mode=1;
 	balltime=10;
 	HC595Init();
