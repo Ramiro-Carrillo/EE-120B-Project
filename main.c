@@ -205,38 +205,41 @@ void Transitions(){
 		break;
 	
 		case one:
-		state=two;
-		break;
-	
-		case two:
-		state=three;
-		break;
-		
-		case three:
-		state=one;
-		break;
-		}
-	switch(state){
-		case init:
-		break;
-		
-		case one:
 		tik=0;
 		break;
-		
+	
 		case two:
 		tik=1;
 		break;
 		
 		case three:
 		tik=2;
+		break;
+
+		}
+	switch(state){
+		case init:
+		break;
+		
+		case one:
+		state=two;
+		break;
+		
+		case two:
+		state=three;
+		tik=1;
+		break;
+		
+		case three:
+		state=one;
+		tik=2;
 	}
 }
 
 
 	
-void LeftScroll(){
-if(cnt==1){
+void PaddleScroll(){
+	if(cnt==1){
 	if(buttonUpOne){
 	if(LeftPad<0xE0){
 		LeftPad=(LeftPad<<1);
@@ -247,11 +250,6 @@ if(cnt==1){
 		LeftPad=(LeftPad>>1);
 	}
 	}
-}
-}
-
-void RightScroll(){
-if(cnt==1){	
 	if(buttonUpTwo){
 	if(RightPad<0xE0){
 		RightPad=(RightPad<<1);
@@ -270,7 +268,7 @@ void Padle(){
 	if(LeftContact>=1){
 		LeftGate=0x01;
 	}
-	else {
+	else {	
 		LeftGate=0x00;
 	}
 	
@@ -567,8 +565,6 @@ while(buttonReset){
 
 	LeftPad=0x38;
 	RightPad=0x38;
-	//ballcolumn=0x01;
-	//ballrow=0x01;
 	HC595Write(0x00);
 	HC595Write1(0x00);
 	PlayerTwoScore=0;
@@ -797,8 +793,7 @@ int main(void)
     while (1) {
 
 	Transitions();
-	LeftScroll();
-	RightScroll();
+	PaddleScroll();
 	Padle();
 	ballCounter();
 	ballClockwise();
@@ -807,7 +802,6 @@ int main(void)
 	score();
 	ballreset();
 	Ai();
-		//	attempt();
 	Adder();
 	resetgame();
 
